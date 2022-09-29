@@ -1,6 +1,8 @@
 const config = {
     debug: false,
 
+    appPort: "8080",
+
     webhookURL: "https://discord.com/api/webhooks/.../...",
 
     districtCode: "CODE",

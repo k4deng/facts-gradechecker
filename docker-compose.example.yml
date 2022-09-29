@@ -1,0 +1,9 @@
+version: "1"
+
+services:
+  facts-gradechecker:
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+       - facts-gradechecker_data:/app/data

@@ -1,10 +1,13 @@
+// Node Imports
 const path = require("path");
-const fetch = require("node-fetch");
+
+// Config
+const config = require("./config.js");
 
 // express
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = config.appPort;
 
 // For logging
 const logger = require("./modules/logger.js");
@@ -49,7 +52,7 @@ app.use("/", require("./routes/site")());
 // site.com/fullReport
 //app.use("/fullReport/", require("./routes/fullReport")());
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   logger.log(`Listening on port ${port}`, "ready");
 })
 app.on("error", err => {
