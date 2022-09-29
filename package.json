@@ -1,0 +1,25 @@
+{
+  "name": "GratefulSoulfulCompiler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "config.js": "^0.1.0",
+    "ejs": "^3.1.8",
+    "enmap": "^5.9.2",
+    "express": "^4.18.1",
+    "json-diff": "^0.9.0",
+    "moment": "^2.29.4",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
+    "puppeteer": "^18.0.5",
+    "webhook-discord": "^3.7.8"
+  }
+}

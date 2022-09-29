@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Overview</title>
+
+    <link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-circle {
+            width: 35px;
+            height: 35px;
+            padding: 3.4px 0px;
+            border-radius: 100%;
+            text-align: center;
+            font-size: 17px;
+            line-height: 1.42857;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="col-lg-8 mx-auto p-3 py-md-5">
+        <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+            <a href="/overview" class="d-flex align-items-center text-dark text-decoration-none">
+                <span class="fs-4">Student Overview</span>
+            </a>
+        </header>
+
+        <main>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col" class="text-center">Grade</th>
+                    <th scope="col">Instructor</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% for (const subject of config.classes) { %>
+                    <tr>
+                        <th scope="row"><%= data[subject.id].name.long %></th>
+                        <td class="text-center">
+                            <a href="/class/<%= subject.id %>" class="btn btn-<%= data[subject.id].termGrade.style %> btn-circle">
+                                <%= data[subject.id].termGrade.letter %>
+                            </a>
+                             <%= data[subject.id].termGrade.number %>%
+                        </td>
+                        <td><%= data[subject.id].teacher %></td>
+                    </tr>
+                <% } %>
+                </tbody>
+            </table>
+
+        </main>
+        <footer class="pt-5 my-5 text-muted border-top">
+            Created by k4deng &middot; &copy; 2022
+        </footer>
+    </div>
+
+    <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
