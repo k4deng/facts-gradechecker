@@ -1,12 +1,15 @@
-version: "1"
+version: "3"
 
 services:
   facts-gradechecker:
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
-       - facts-gradechecker_data:/app/data
+      - facts-gradechecker_data:/app/data
 
 volumes:
   facts-gradechecker_data:
