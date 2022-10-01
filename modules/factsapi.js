@@ -26,7 +26,17 @@ async function getClassGrades(classID, term = config.defaultTerm) {
 
     try {
         //start browser and load page
-        const browser = await puppeteer.launch({ headless: !config.debug });
+        //dev: const browser = await puppeteer.launch({ headless: !config.debug });
+        const browser = await puppeteer.launch({
+            headless: !config.debug,
+            executablePath: '/usr/bin/chromium-browser',
+            args: [
+              '--no-sandbox',
+              '--headless',
+              '--disable-gpu',
+              '--disable-dev-shm-usage'
+            ]
+        });
         const page = await browser.newPage();
 
         //login
@@ -59,7 +69,17 @@ async function getClassGradesInfo(classID, term = config.defaultTerm) {
 
     try {
         //start browser and load page
-        const browser = await puppeteer.launch({ headless: !config.debug });
+        //dev: const browser = await puppeteer.launch({ headless: !config.debug });
+        const browser = await puppeteer.launch({
+            headless: !config.debug,
+            executablePath: '/usr/bin/chromium-browser',
+            args: [
+              '--no-sandbox',
+              '--headless',
+              '--disable-gpu',
+              '--disable-dev-shm-usage'
+            ]
+        });
         const page = await browser.newPage();
 
         //login
@@ -122,7 +142,17 @@ async function getAllClassGradesInfo(term = config.defaultTerm) {
 
     try {
         //start browser and load page
-        const browser = await puppeteer.launch({ headless: !config.debug });
+        //dev: const browser = await puppeteer.launch({ headless: !config.debug });
+        const browser = await puppeteer.launch({
+            headless: !config.debug,
+            executablePath: '/usr/bin/chromium-browser',
+            args: [
+              '--no-sandbox',
+              '--headless',
+              '--disable-gpu',
+              '--disable-dev-shm-usage'
+            ]
+        });
         const page = await browser.newPage();
 
         //login

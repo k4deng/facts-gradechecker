@@ -1,4 +1,15 @@
-FROM node:16-alpine
+FROM node:18-alpine
+
+ENV CHROME_BIN="/usr/bin/chromium-browser" \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+
+RUN set -x \
+    && apk update \
+    && apk upgrade \
+    && apk add --no-cache \
+    udev \
+    ttf-freefont \
+    chromium
 
 # Create app directory
 WORKDIR /app
@@ -8,9 +19,8 @@ WORKDIR /app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+# RUN npm install
+RUN npm ci --omit=dev
 
 # Bundle app source
 COPY . .
