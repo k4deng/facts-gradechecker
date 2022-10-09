@@ -32,7 +32,7 @@ Finally, you will need to fill out the `classes` key on line 15. Start by making
 Fill out the name key (Anything you want, it is the user-friendly version of the id) and navigate to each classes page (HINT: you did this in step 2).
 Copy the value of the `classid` query from the url and paste it into the object for the appropriate class.
 Now you should have something that looks like this:
-```json
+```js
 classes: [{
     name: "Math",
     id: "62015"
