@@ -86,6 +86,7 @@ async function updateClassesInfo() {
     try {
         await factsapi.getAllClassGradesInfo()
         .then(info => {
+            if (info.status == 2) return { status: 2 };
             database.set("allClassGradesInfo", info.result);
         });
         return { status: 1 } 
