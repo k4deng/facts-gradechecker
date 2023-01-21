@@ -97,17 +97,25 @@ async function getClassGradesInfo(classID, term = config.defaultTerm) {
         }
 
         //get term grade number and style
-        const termGradeNumber = await termGradeXpath.evaluate(el => el.innerText.match(/\d+/g).join([]))
-        const termGradeStyle =
-            termGradeNumber >= 90 //A
-            ? "success"
-            : termGradeNumber >= 80 //B
-                ? "warning"
-                : termGradeNumber >= 70 //C
-                ? "danger"
-                : termGradeNumber >= 60 //D
+        let termGradeNumber, termGradeLetter, termGradeStyle;
+        if (await termGradeXpath.evaluate(el => el.innerText) == "No grades available for this term") {
+            termGradeNumber = 100;
+            termGradeLetter = "A+";
+            termGradeStyle = "success";
+        } else {
+            termGradeNumber = await termGradeXpath.evaluate(el => el.innerText.match(/\d+/g).join([]));
+            termGradeLetter = await termGradeXpath.evaluate(el => el.innerText.match(/[^0-9 ]/g).join([]));
+            termGradeStyle =
+                termGradeNumber >= 90 //A
+                ? "success"
+                : termGradeNumber >= 80 //B
+                    ? "warning"
+                    : termGradeNumber >= 70 //C
                     ? "danger"
-                    : "outline-danger"; //F
+                    : termGradeNumber >= 60 //D
+                        ? "danger"
+                        : "outline-danger"; //F
+        }
 
         const info = {
             teacher: await page.$eval('div.grades_head:nth-child(2) > div:nth-child(3)', el => el.innerText),
@@ -117,7 +125,7 @@ async function getClassGradesInfo(classID, term = config.defaultTerm) {
             },
             termGrade: {
                 number: termGradeNumber,
-                letter: await termGradeXpath.evaluate(el => el.innerText.match(/[^0-9 ]/g).join([])),
+                letter: termGradeLetter,
                 style: termGradeStyle
             }
         }
@@ -182,17 +190,25 @@ async function getAllClassGradesInfo(term = config.defaultTerm) {
             }
 
             //get term grade number and style
-            const termGradeNumber = await termGradeXpath.evaluate(el => el.innerText.match(/\d+/g).join([]))
-            const termGradeStyle =
-                termGradeNumber >= 90 //A
-                ? "success"
-                : termGradeNumber >= 80 //B
-                    ? "warning"
-                    : termGradeNumber >= 70 //C
-                    ? "danger"
-                    : termGradeNumber >= 60 //D
+            let termGradeNumber, termGradeLetter, termGradeStyle;
+            if (await termGradeXpath.evaluate(el => el.innerText) == "No grades available for this term") {
+                termGradeNumber = 100;
+                termGradeLetter = "A+";
+                termGradeStyle = "success";
+            } else {
+                termGradeNumber = await termGradeXpath.evaluate(el => el.innerText.match(/\d+/g).join([]));
+                termGradeLetter = await termGradeXpath.evaluate(el => el.innerText.match(/[^0-9 ]/g).join([]));
+                termGradeStyle =
+                    termGradeNumber >= 90 //A
+                    ? "success"
+                    : termGradeNumber >= 80 //B
+                        ? "warning"
+                        : termGradeNumber >= 70 //C
                         ? "danger"
-                        : "outline-danger"; //F
+                        : termGradeNumber >= 60 //D
+                            ? "danger"
+                            : "outline-danger"; //F
+            }
 
             //add data to result
             result[classID] = {
@@ -203,7 +219,7 @@ async function getAllClassGradesInfo(term = config.defaultTerm) {
                 },
                 termGrade: {
                     number: termGradeNumber,
-                    letter: await termGradeXpath.evaluate(el => el.innerText.match(/[^0-9 ]/g).join([])),
+                    letter: termGradeLetter,
                     style: termGradeStyle
                 }
             }
