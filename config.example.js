@@ -1,9 +1,11 @@
 const config = {
+    devMode: false,
     debug: false,
 
     appPort: "8080",
 
-    webhookURL: "https://discord.com/api/webhooks/.../...",
+    infoWebhookURL: "https://discord.com/api/webhooks/.../...",
+    allDataWebhookURL: "https://discord.com/api/webhooks/.../...",
 
     districtCode: "CODE",
     username: "example@gmail.com",

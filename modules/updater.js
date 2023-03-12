@@ -12,7 +12,7 @@ const jsonDiff = require('json-diff');
 
 // discord webhooks
 const webhook = require("webhook-discord");
-const Hook = new webhook.Webhook(config.webhookURL);
+const Hook = new webhook.Webhook(config.infoWebhookURL);
 
 // database
 const { database } = require("./enmap.js");

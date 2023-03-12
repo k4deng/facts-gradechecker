@@ -30,7 +30,7 @@ module.exports = function() {
   // show class grade
   router.get("/class/:classID", (req, res) => {
 
-    factsapi.getClassGrades(req.params.classID)
+    factsapi.getClassGradesPage(req.params.classID)
       .then(classGrades => {
         
         // success
@@ -51,6 +51,28 @@ module.exports = function() {
       });
 
   });
+
+    // show class grade in json
+    router.get("/class/:classID/json", (req, res) => {
+
+      factsapi.getClassGradesData(req.params.classID)
+        .then(data => {
+          
+          // success
+          if (data.status == 1) {
+            res.json(data.result);
+          }
+  
+          // error
+          if (data.status == 2) res.render(
+            path.resolve(`${process.cwd()}/views/logs.ejs`), {
+              title: "Error",
+              logs: data.result
+            });
+          
+        });
+  
+    });
 
   // grades overview
   router.get("/overview", (req, res) => {
