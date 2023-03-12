@@ -7,6 +7,7 @@
     <title>Student Overview</title>
 
     <link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/dist/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
     <style>
         @media (min-width: 768px) {
@@ -75,7 +76,7 @@
 
         <main>
 
-            <table class="table table-striped">
+            <table id="mainTable" class="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">Subject</th>
@@ -86,14 +87,14 @@
                 <tbody>
                 <% for (const subject of config.classes) { %>
                     <tr>
-                        <th scope="row"><%= data[subject.id].name.long %></th>
-                        <td class="text-center">
+                        <th class="align-middle" scope="row"><%= data[subject.id].name.long %></th>
+                        <td class="text-center align-middle" data-order="<%= data[subject.id].termGrade.number %>">
                             <a href="/class/<%= subject.id %>" class="btn btn-<%= data[subject.id].termGrade.style %> btn-circle">
                                 <%= data[subject.id].termGrade.letter %>
                             </a>
                              <%= data[subject.id].termGrade.number %>%
                         </td>
-                        <td><%= data[subject.id].teacher %></td>
+                        <td class="align-middle"><%= data[subject.id].teacher %></td>
                     </tr>
                 <% } %>
                 </tbody>
@@ -101,11 +102,26 @@
 
         </main>
         <footer class="pt-5 my-5 text-muted border-top">
-            Created by k4deng &middot; &copy; 2022
+            Created by k4deng &middot; &copy; 2023
         </footer>
     </div>
 
     <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/dist/js/jquery-3.6.4.min.js"></script>
+    <script src="/assets/dist/js/jquery.dataTables.min.js"></script>
+    <script src="/assets/dist/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#mainTable").DataTable({
+                paging: false,
+                info: false,
+                searching: false,
+            });
+            $("#mainTable_wrapper").addClass("col-xl-8 mx-auto");
+        })
+    </script>
+
 
 </body>
 
