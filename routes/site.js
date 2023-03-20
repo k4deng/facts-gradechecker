@@ -101,10 +101,16 @@ module.exports = function() {
   });
 
   // updates
-  router.get("/update", (req, res) => {
+  router.get("/update/:type", (req, res) => {
 
-    updater.updateAll()
-    .then(info => {
+    let func;
+    if (req.params.type == "all") func = updater.updateAll;
+    else if (req.params.type == "notifs") func = updater.sendNotif;
+    else if (req.params.type == "info") func = updater.updateAllClassGradesInfo;
+    else if (req.params.type == "data") func = updater.updateAllClassGradesData;
+    else return res.sendStatus(404);
+
+    func().then(info => {
       
       res.render(
         path.resolve(`${process.cwd()}/views/logs.ejs`), {

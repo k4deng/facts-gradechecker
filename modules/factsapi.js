@@ -193,7 +193,7 @@ async function getAllClassGradesInfo(term = config.defaultTerm) {
             await _openClassGrades(page, classID);
 
             //wait for load
-            await page.waitForSelector('body')
+            await page.waitForSelector('body');
 
             //get term grade location
             let [termGradeXpath] = await page.$x('/html/body/div[7]/div[2]')
@@ -204,7 +204,7 @@ async function getAllClassGradesInfo(term = config.defaultTerm) {
             //get term grade number and style
             let termGradeNumber, termGradeLetter, termGradeStyle;
             if (await termGradeXpath.evaluate(el => el.innerText) == "No grades available for this term") {
-                termGradeNumber = 100;
+                termGradeNumber = "100";
                 termGradeLetter = "A+";
                 termGradeStyle = "success";
             } else {
@@ -287,7 +287,7 @@ async function getClassGradesData(classID, term = config.defaultTerm) {
         let categories = 3;
         if (!! await page.$('table.grades:nth-child(12) tr')) categories = 4;
         
-        let info = {};
+        let data = {};
         let colCounter = 5;
         for (let i = 0; i < categories; i++) {
 
@@ -302,25 +302,25 @@ async function getClassGradesData(classID, term = config.defaultTerm) {
                 });
             });
     
-            let data = {};
+            let formattedData = {};
             let catAvg;
             for (const value of uncleanData) {
                 if (value == "") continue;
                 if (value[0] == "Category Average") { catAvg = parseFloat(value[1]); continue; }
-                data[value[0]] = {
+                formattedData[value[0]] = {
                     pts: parseFloat(value[1]),
                     maxPts: parseFloat(value[2]),
                     gradePoints: parseFloat(value[3]),
                     status: value[4],
                     due: value[5]
                 }
-                if (value[9] !== "") data[value[0]]["note"] = value[9];
+                if (value[9] !== "") formattedData[value[0]]["note"] = value[9];
             }
 
-            info [await page.$eval(`div.grades_head:nth-child(${colCounter}) > div:nth-child(1)`, el => el.innerText)] = {
+            data[await page.$eval(`div.grades_head:nth-child(${colCounter}) > div:nth-child(1)`, el => el.innerText)] = {
                 weight: await page.$eval(`div.grades_head:nth-child(${colCounter}) > div:nth-child(3)`, el => parseFloat(el.innerText.split('= ')[1])),
                 catAvg: catAvg,
-                data
+                formattedData
             }
 
             colCounter += 2;
@@ -331,7 +331,7 @@ async function getClassGradesData(classID, term = config.defaultTerm) {
         await browser.close();
 
         //send off result
-        return { status: 1, result: info }
+        return { status: 1, result: data }
     } catch (e) {
         //send error(s)
         logger.error(e)
@@ -340,4 +340,112 @@ async function getClassGradesData(classID, term = config.defaultTerm) {
 
 }
 
-module.exports = { getClassGradesPage, getClassGradesInfo, getAllClassGradesInfo, getClassGradesData }
+// get all assignments & grades data for all classes (returns JSON)
+async function getAllClassGradesData(term = config.defaultTerm) {
+
+    let result = {};
+
+    try {
+        //start browser and load page
+        let browser;
+        if (config.devMode == true) {
+            browser = await puppeteer.launch({ headless: !config.debug });
+        } else {
+            browser = await puppeteer.launch({
+                headless: !config.debug,
+                executablePath: '/usr/bin/chromium-browser',
+                args: [
+                '--no-sandbox',
+                '--headless',
+                '--disable-gpu',
+                '--disable-dev-shm-usage'
+                ]
+            });
+        }
+        const page = await browser.newPage();
+
+        //login
+        await _login(page);
+
+        //open single class grades
+        async function _openClassGrades(page, classID){
+            await page.goto(
+                `https://${config.districtCode}.client.renweb.com/pwr/student/gradebook_ajax.cfm?studentid=${config.studentID}&isAjaxRequest=gradespage&classid=${classID}&termid=${term}`,
+                { waitUntil: "domcontentloaded" }
+            )
+        }
+
+        //get the data from class and add to results
+        async function _getClassData(page, classID){
+
+            //open class
+            await _openClassGrades(page, classID);
+
+            //wait for load
+            await page.waitForSelector('body');
+
+            let categories = 3;
+            if (!! await page.$('table.grades:nth-child(12) tr')) categories = 4;
+            
+            let data = {};
+            let colCounter = 5;
+            for (let i = 0; i < categories; i++) {
+
+                const uncleanData = await page.$$eval(`table.grades:nth-child(${colCounter + 1}) tr`, rows => {
+                    return Array.from(rows, row => {
+                        const columns = row.querySelectorAll('td');
+                        return Array.from(columns, column => {
+                            if (column.innerText.indexOf(': ') !== -1) return column.innerText.slice(column.innerText.indexOf(":") + 1);;
+                            if (column.innerText.indexOf(':') !== -1) return column.innerText.slice(column.innerText.indexOf(":") + 1);;
+                            return column.innerText;
+                        });
+                    });
+                });
+        
+                let formattedData = {};
+                let catAvg;
+                for (const value of uncleanData) {
+                    if (value == "") continue;
+                    if (value[0] == "Category Average") { catAvg = parseFloat(value[1]); continue; }
+                    formattedData[value[0]] = {
+                        pts: parseFloat(value[1]),
+                        maxPts: parseFloat(value[2]),
+                        gradePoints: parseFloat(value[3]),
+                        status: value[4],
+                        due: value[5]
+                    }
+                    if (value[9] !== "") formattedData[value[0]]["note"] = value[9];
+                }
+
+                data[await page.$eval(`div.grades_head:nth-child(${colCounter}) > div:nth-child(1)`, el => el.innerText)] = {
+                    weight: await page.$eval(`div.grades_head:nth-child(${colCounter}) > div:nth-child(3)`, el => parseFloat(el.innerText.split('= ')[1])),
+                    catAvg: catAvg,
+                    formattedData
+                }
+
+                colCounter += 2;
+        
+            }
+
+            result[classID] = data;
+        }
+
+        //loop through classes
+        for (const subject of config.classes) {
+            await _getClassData(page, subject.id)
+        }
+
+        //close the browser
+        await browser.close();
+
+        //send off result
+        return { status: 1, result: result }
+    } catch (e) {
+        //send error(s)
+        logger.error(e)
+        return { status: 2, result: "There was an unknown error fetching grades!" }
+    }
+
+}
+
+module.exports = { getClassGradesPage, getClassGradesInfo, getAllClassGradesInfo, getClassGradesData, getAllClassGradesData }
