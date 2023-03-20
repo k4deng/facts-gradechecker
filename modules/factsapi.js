@@ -403,7 +403,8 @@ async function getAllClassGradesData(term = config.defaultTerm) {
                 });
         
                 let formattedData = {};
-                let catAvg;
+                let catAvg = 100;
+                console.log(uncleanData);
                 for (const value of uncleanData) {
                     if (value == "") continue;
                     if (value[0] == "Category Average") { catAvg = parseFloat(value[1]); continue; }
