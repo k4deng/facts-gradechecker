@@ -36,7 +36,6 @@ async function _updatesNotifyData() {
         //generate diff
         //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
         const diff = jsonDiff.diff(currentData, newData, { full: false })
-        let result = {};
 
         //new message for each class w/ changed data
         for (const [ subject, subjectData ] of Object.entries(diff)) {
@@ -48,12 +47,16 @@ async function _updatesNotifyData() {
                 .setColor("#2b2d31")
                 .setTitle(`${info[subject].name.long} Data Change`);
 
+            //message to be sent to embed
+            let dataHookMessage = "";
+
             //get changes in each categories that were changed
             for (const [ cat, catData ] of Object.entries(subjectData)) {
                 //category average changed
                 if (catData.catAvg) {
+                    let title = `**\`${cat}\` Category Updated:**`;
                     let message = `\`${catData.catAvg.__old}\` ⇒ \`${catData.catAvg.__new}\``;
-                    msg.addField(`\`${cat}\` Category Updated:`, message);
+                    dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
                 }
                 
                 //some assignment was changed
@@ -62,29 +65,32 @@ async function _updatesNotifyData() {
 
                         //assignment added
                         if (assignment.endsWith("__added")) {
+                            let title = `**\`${assignment.replace("__added", "")}\` (\`${cat}\`) Added:**`;
                             let message = `Grade: \`${assignmentData.gradePoints}\``;
                             if (assignmentData.pts != assignmentData.gradePoints) message += ` (\`${assignmentData.pts}\`/\`${assignmentData.maxPts}\`pts)`;
-                            msg.addField(`\`${assignment.replace("__added", "")}\` (\`${cat}\`) Added:`, message);
+                            dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
                         }
 
                         //assignment deleted
                         if (assignment.endsWith("__deleted")) {
+                            let title = `**\`${assignment.replace("__deleted", "")}\` (\`${cat}\`) Deleted:**`;
                             let message = `Was: \`${assignmentData.gradePoints}\``;
                             if (assignmentData.pts != assignmentData.gradePoints) message += ` (\`${assignmentData.pts}\`/\`${assignmentData.maxPts}\`pts)`;
-                            msg.addField(`\`${assignment.replace("__deleted", "")}\` (\`${cat}\`) Deleted:`, message);
+                            dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
                         }
 
                         //pts/gradePoints changed
                         if (assignmentData.gradePoints?.__old) {
                             //grade was changed, not removed
                             if (assignmentData.gradePoints.__new != null) {
+                                let title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
                                 let message = `\`${assignmentData.gradePoints.__old}`;
                                 if (assignmentData.pts.__old != assignmentData.gradePoints.__old) message += ` (${assignmentData.pts.__old}/${assignmentData.maxPts?.__old ?? currentData[subject][cat].formattedData[assignment].maxPts})\``;
                                     else message += `\``
                                 message += ` ⇒ \`${assignmentData.gradePoints.__new}`;
                                 if (assignmentData.pts.__new != assignmentData.gradePoints.__new) message += ` (${assignmentData.pts.__new}/${assignmentData.maxPts?.__new ?? currentData[subject][cat].formattedData[assignment].maxPts})\``;
                                     else message += `\``
-                                msg.addField(`\`${assignment}\` (\`${cat}\`) Updated:`, message);
+                                dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
                             }
                         }
                     }
@@ -93,6 +99,7 @@ async function _updatesNotifyData() {
             }
 
             //send message
+            msg.setDescription(dataHookMessage)
             await dataHook.send(msg);
 
         }
