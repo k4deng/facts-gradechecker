@@ -93,6 +93,16 @@ async function _updatesNotifyData() {
                                 dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
                             }
                         }
+
+                        //status changed (dropped)
+                        if (assignmentData.status?.__old) {
+                            //status was changed, not removed
+                            if (assignmentData.status.__new != null) {
+                                let title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
+                                let message = `Status: \`${assignmentData.status.__old}\` ⇒ \`${assignmentData.status.__new}\``;
+                                dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
+                            }
+                        }
                     }
                 }
 
