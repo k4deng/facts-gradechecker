@@ -7,9 +7,5 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - facts-gradechecker_data/data:/app/data
-      - facts-gradechecker_data/config.js:/app/config.js
-    restart: unless-stopped
-
-volumes:
-  facts-gradechecker_data:
+      - /var/home/facts-gradechecker/data:/app/data
+      - /var/home/facts-gradechecker/config.js:/app/config.js
