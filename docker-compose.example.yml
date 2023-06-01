@@ -2,14 +2,14 @@ version: "3"
 
 services:
   facts-gradechecker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: k4deng/facts-gradechecker
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - 8080:8080
     volumes:
-      - facts-gradechecker_data:/app/data
+      - facts-gradechecker_data/data:/app/data
+      - facts-gradechecker_data/config.js:/app/config.js
+    restart: unless-stopped
 
 volumes:
   facts-gradechecker_data:
