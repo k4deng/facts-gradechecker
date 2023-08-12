@@ -5,7 +5,7 @@ const path = require("path");
 const config = require("./config.js");
 
 // express
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = config.appPort;
 
@@ -54,7 +54,7 @@ app.use("/", require("./routes/site")());
 
 app.listen(port, "0.0.0.0", () => {
   logger.log(`Listening on port ${port}`, "ready");
-})
+});
 app.on("error", err => {
   logger.error(`Error with starting: ${err.code}`);
   return process.exit(0);

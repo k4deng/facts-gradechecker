@@ -85,16 +85,16 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% for (const subject of config.classes) { %>
+                <% for (const [classId, subject] of Object.entries(data)) { %>
                     <tr>
-                        <th class="align-middle" scope="row"><%= data[subject.id].name.long %></th>
-                        <td class="text-center align-middle" data-order="<%= data[subject.id].termGrade.number %>">
-                            <a href="/class/<%= subject.id %>" class="btn btn-<%= data[subject.id].termGrade.style %> btn-circle">
-                                <%= data[subject.id].termGrade.letter %>
+                        <th class="align-middle" scope="row"><%= subject.class.title %></th>
+                        <td class="text-center align-middle" data-order="<%= subject.termGrade.average %>">
+                            <a href="/class/<%= classId %>" class="btn btn-<%= subject.termGrade.style %> btn-circle">
+                                <%= subject.termGrade.letter %>
                             </a>
-                             <%= data[subject.id].termGrade.number %>%
+                             <%= subject.termGrade.average %>%
                         </td>
-                        <td class="align-middle"><%= data[subject.id].teacher %></td>
+                        <td class="align-middle"><%= subject.teacher.lastName %>, <%= subject.teacher.firstName %></td>
                     </tr>
                 <% } %>
                 </tbody>
@@ -102,7 +102,7 @@
 
         </main>
         <footer class="pt-5 my-5 text-muted border-top">
-            Created by k4deng &middot; &copy; 2023
+            Copyright &copy; <%= new Date().getFullYear() %> k4deng
         </footer>
     </div>
 

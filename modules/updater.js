@@ -5,10 +5,13 @@ const config = require("../config.js");
 const logger = require("./logger.js");
 
 // facts api
-const factsapi = require("./factsapi.js");
+const factsapi = require("../modules/factsapi/factsapi.js");
 
 // json diff
-const jsonDiff = require('json-diff');
+const jsonDiff = require("json-diff");
+
+// moment for time formatting
+const moment = require("moment");
 
 // discord webhooks
 const webhook = require("webhook-discord");
@@ -20,205 +23,222 @@ const { database } = require("./enmap.js");
 
 //notify for data updates on discord
 async function _updatesNotifyData() {
-    try {
-        const info = database.get("allClassGradesInfo");
-        const currentData = database.get("allClassGradesData")
-        let newData = {};
+  try {
+    const info = database.get("allClassGradesInfo");
+    const currentData = database.get("allClassGradesData");
+    let newData = {};
 
-        await factsapi.getAllClassGradesData().then(info => {
-            newData = info.result;
-            //newData[22244].Quizzes.catAvg = "92"; //SPOOF CHANGED DATA ==============================================================
-        });
+    await factsapi.getAllClassGradesData().then(info => {
+      newData = info.result;
+      //newData[23904]["HW/CW"].assignments["Letter to Self"].grade = "92"; //SPOOF CHANGED DATA
+      //newData[23904]["HW/CW"].assignments["Letter to Self"].points.received = 92;
+    });
 
-        //check for changes
-        if (JSON.stringify(currentData) === JSON.stringify(newData)) return { status: 1, result: "No Changes" };
+    //check for changes
+    if (JSON.stringify(currentData) === JSON.stringify(newData)) return { status: 1, result: "No Changes" };
 
-        //generate diff
-        //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
-        const diff = jsonDiff.diff(currentData, newData, { full: false })
+    //generate diff
+    //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
+    const diff = jsonDiff.diff(currentData, newData, { full: false });
 
-        //new message for each class w/ changed data
-        for (const [ subject, subjectData ] of Object.entries(diff)) {
+    //new message for each class w/ changed data
+    for (const [ subject, subjectData ] of Object.entries(diff)) {
 
-            //init embed
-            const msg = new webhook.MessageBuilder()
-                .setName("FACTS Grade Checker")
-                .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
-                .setColor("#2b2d31")
-                .setTitle(`${info[subject].name.long} Data Change`);
+      //init embed
+      const msg = new webhook.MessageBuilder()
+        .setName("FACTS Grade Checker")
+        .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
+        .setColor("#2b2d31")
+        .setTitle(`${info[subject].class.title} Data Change`);
 
-            //message to be sent to embed
-            let dataHookMessage = "";
+      //message to be sent to embed
+      let dataHookMessage = "";
 
-            //get changes in each categories that were changed
-            for (const [ cat, catData ] of Object.entries(subjectData)) {
-                //category average changed
-                if (catData.catAvg) {
-                    let title = `**\`${cat}\` Category Updated:**`;
-                    let message = `\`${catData.catAvg.__old}\` ⇒ \`${catData.catAvg.__new}\``;
-                    dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
-                }
+      //get changes in each categories that were changed
+      for (const [ cat, catData ] of Object.entries(subjectData)) {
+        //category average changed
+        /*if (catData.catAvg) {
+          const title = `**\`${cat}\` Category Updated:**`;
+          const message = `\`${catData.catAvg.__old}\` ⇒ \`${catData.catAvg.__new}\``;
+          dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+        }*/
                 
-                //some assignment was changed
-                if (catData.formattedData) {
-                    for (const [ assignment, assignmentData ] of Object.entries(catData.formattedData)) {
+        //some assignment was changed
+        if (catData.assignments) {
+          for (const [ assignment, assignmentData ] of Object.entries(catData.assignments)) {
 
-                        //assignment added
-                        if (assignment.endsWith("__added")) {
-                            let title = `**\`${assignment.replace("__added", "")}\` (\`${cat}\`) Added:**`;
-                            let message = `Grade: \`${assignmentData.gradePoints}\``;
-                            if (assignmentData.pts != assignmentData.gradePoints) message += ` (\`${assignmentData.pts}\`/\`${assignmentData.maxPts}\`pts)`;
-                            dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
-                        }
-
-                        //assignment deleted
-                        if (assignment.endsWith("__deleted")) {
-                            let title = `**\`${assignment.replace("__deleted", "")}\` (\`${cat}\`) Deleted:**`;
-                            let message = `Was: \`${assignmentData.gradePoints}\``;
-                            if (assignmentData.pts != assignmentData.gradePoints) message += ` (\`${assignmentData.pts}\`/\`${assignmentData.maxPts}\`pts)`;
-                            dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
-                        }
-
-                        //pts/gradePoints changed
-                        if (assignmentData.gradePoints?.__old) {
-                            //grade was changed, not removed
-                            if (assignmentData.gradePoints.__new != null) {
-                                let title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
-                                let message = `\`${assignmentData.gradePoints.__old}`;
-                                if (assignmentData.pts.__old != assignmentData.gradePoints.__old) message += ` (${assignmentData.pts.__old}/${assignmentData.maxPts?.__old ?? currentData[subject][cat].formattedData[assignment].maxPts})\``;
-                                    else message += `\``
-                                message += ` ⇒ \`${assignmentData.gradePoints.__new}`;
-                                if (assignmentData.pts.__new != assignmentData.gradePoints.__new) message += ` (${assignmentData.pts.__new}/${assignmentData.maxPts?.__new ?? currentData[subject][cat].formattedData[assignment].maxPts})\``;
-                                    else message += `\``
-                                dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
-                            }
-                        }
-
-                        //status changed (dropped)
-                        if (assignmentData.status?.__old) {
-                            //status was changed, not removed
-                            if (assignmentData.status.__new != null) {
-                                let title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
-                                let message = `Status: \`${assignmentData.status.__old}\` ⇒ \`${assignmentData.status.__new}\``;
-                                dataHookMessage = dataHookMessage + `\n` + title + `\n` + message;
-                            }
-                        }
-                    }
-                }
-
+            //assignment added
+            if (assignment.endsWith("__added")) {
+              const title = `**\`${assignment.replace("__added", "")}\` (\`${cat}\`) Added:**`;
+              let message = `Grade: \`${assignmentData.grade}\``;
+              if (assignmentData.pts != assignmentData.grade) message += ` (\`${assignmentData.points.received}\`/\`${assignmentData.points.max}\`pts)`;
+              dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
             }
 
-            //send message
-            msg.setDescription(dataHookMessage)
-            await dataHook.send(msg);
+            //assignment deleted
+            if (assignment.endsWith("__deleted")) {
+              const title = `**\`${assignment.replace("__deleted", "")}\` (\`${cat}\`) Deleted:**`;
+              let message = `Was: \`${assignmentData.grade}\``;
+              if (assignmentData.pts != assignmentData.grade) message += ` (\`${assignmentData.points.received}\`/\`${assignmentData.points.max}\`pts)`;
+              dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+            }
 
+            //pts/grade changed
+            if (assignmentData.grade?.__old) {
+              //grade was changed, not removed
+              if (assignmentData.grade.__new != null) {
+                const title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
+                let message = `\`${assignmentData.grade.__old}`;
+                if (assignmentData.points.received.__old != assignmentData.grade.__old) message += ` (${assignmentData.points.received.__old}/${assignmentData.points.max?.__old ?? currentData[subject][cat].assignments[assignment].points.max})\``;
+                else message += "`";
+                message += ` ⇒ \`${assignmentData.grade.__new}`;
+                if (assignmentData.points.received.__new != assignmentData.grade.__new) message += ` (${assignmentData.points.received.__new}/${assignmentData.points.max?.__new ?? currentData[subject][cat].assignments[assignment].points.max})\``;
+                else message += "`";
+                dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+              }
+            }
+
+            //due date
+            if (assignmentData.date?.due?.__old) {
+              const title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
+              const message = `Due Date: \`${moment(assignmentData.date.due.__old).format("M/D")}\` ⇒ \`${moment(assignmentData.date.due.__new).format("M/D")}\``;
+              dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+            }
+
+            //status changed (dropped)
+            /*if (assignmentData.status?.__old) {
+              //status was changed, not removed
+              if (assignmentData.status.__new != null) {
+                const title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
+                const message = `Status: \`${assignmentData.status.__old}\` ⇒ \`${assignmentData.status.__new}\``;
+                dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+              }
+            }*/
+
+            //notes changed
+            if (assignmentData.notes?.__old != null) {
+              const title = `**\`${assignment}\` (\`${cat}\`) Updated:**`;
+              const message = `Notes: \`${assignmentData.notes.__old ? assignmentData.notes.__old : " "}\` ⇒ \`${assignmentData.notes.__new ? assignmentData.notes.__new : " "}\``;
+              dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
+            }
+
+          }
         }
 
-        return { status: 1, result: "Sent Notification" }
-    } catch (error) {
-        logger.error(error);
-        return { status: 2, result: "Error" }
+      }
+
+      //send message
+      msg.setDescription(dataHookMessage);
+      await dataHook.send(msg);
+
     }
+
+    return { status: 1, result: "Sent Notification" };
+  } catch (error) {
+    logger.error(error);
+    return { status: 2, result: "Error" };
+  }
 }
 
 //notify for info updates on discord
 async function _updatesNotifyInfo() {
-    try {
-        let currentData = database.get("allClassGradesInfo")
-        let newData = {};
+  try {
+    const currentData = database.get("allClassGradesInfo");
+    let newData = {};
 
-        await factsapi.getAllClassGradesInfo().then(info => {
-            newData = info.result;
-            //newData[22244].termGrade.number = "92"; //SPOOF CHANGED DATA ==============================================================
-        });
+    await factsapi.getAllClassGradesInfo().then(info => {
+      newData = info.result;
+      //newData[23904].termGrade.average = "92"; //SPOOF CHANGED DATA
+    });
 
-        //check for changes
-        if (JSON.stringify(currentData) === JSON.stringify(newData)) return { status: 1, result: "No Changes" };
+    //check for changes
+    console.log(newData);
+    if (JSON.stringify(currentData) === JSON.stringify(newData)) return { status: 1, result: "No Changes" };
 
-        //generate diff
-        //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
-        const diff = jsonDiff.diff(currentData, newData, { full: true })
-        let result = {};
+    //generate diff
+    //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
+    const diff = jsonDiff.diff(currentData, newData, { full: true });
+    const result = {};
 
-        //find changed classes
-        for (const [ subject ] of Object.entries(currentData)) {
-            if (JSON.stringify(currentData[subject].termGrade) !== JSON.stringify(newData[subject].termGrade)) {
-                result[subject] = diff[subject].termGrade;
-            }
-        }
-
-        //init embed
-        const msg = new webhook.MessageBuilder()
-            .setName("FACTS Grade Checker")
-            .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
-            .setColor("#2b2d31");
-        
-        //take data and add to embed
-        for (const [ subject, data ] of Object.entries(result)) {
-            const changeMsg = `\`${data.number.__old} (${data.letter.__old ? data.letter.__old : data.letter})\` ⇒ \`${data.number.__new} (${data.letter.__old ? data.letter.__new : data.letter})\``;
-            msg.addField(`${newData[subject].name.long} Grade Change`, changeMsg)
-        }
-
-        //send message
-        await infoHook.send(msg);
-        return { status: 1, result: "Sent Notification" }
-    } catch (error) {
-        logger.error(error);
-        return { status: 2, result: "Error" }
+    //find changed classes
+    for (const [ subject ] of Object.entries(currentData)) {
+      if (JSON.stringify(currentData[subject].termGrade) !== JSON.stringify(newData[subject].termGrade)) {
+        result[subject] = diff[subject].termGrade;
+      }
     }
+
+    //init embed
+    const msg = new webhook.MessageBuilder()
+      .setName("FACTS Grade Checker")
+      .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
+      .setColor("#2b2d31");
+        
+    //take data and add to embed
+    for (const [ subject, data ] of Object.entries(result)) {
+      const changeMsg = `\`${data.average.__old} (${data.letter.__old ? data.letter.__old : data.letter})\` ⇒ \`${data.average.__new} (${data.letter.__old ? data.letter.__new : data.letter})\``;
+      msg.addField(`${newData[subject].class.title} Grade Change`, changeMsg);
+    }
+
+    //send message
+    await infoHook.send(msg);
+    return { status: 1, result: "Sent Notification" };
+  } catch (error) {
+    logger.error(error);
+    return { status: 2, result: "Error" };
+  }
 }
 
 //send notif if changes
 async function sendNotif() {
-    try {
-        await _updatesNotifyInfo();
-        return { status: 1 } 
-    } catch (error) {
-        return { status: 2 } 
-    }
+  try {
+    await _updatesNotifyInfo();
+    return { status: 1 }; 
+  } catch (error) {
+    return { status: 2 }; 
+  }
 }
 
 //update all
 async function updateAll() {
-    try {
-        const notifyResData = await _updatesNotifyData();
-        if (notifyResData.result == "No Changes") return { status: 1 };
-        const notifyResInfo = await _updatesNotifyInfo();
-        await updateAllClassGradesData();
-        if (notifyResInfo.result == "No Changes" ) return { status: 1 };
-        await updateAllClassGradesInfo();
-        return { status: 1 } 
-    } catch (error) {
-        return { status: 2 } 
-    }
+  try {
+    const notifyResData = await _updatesNotifyData();
+    if (notifyResData.result == "No Changes") return { status: 1 };
+    const notifyResInfo = await _updatesNotifyInfo();
+    await updateAllClassGradesData();
+    if (notifyResInfo.result == "No Changes" ) return { status: 1 };
+    await updateAllClassGradesInfo();
+    return { status: 1 }; 
+  } catch (error) {
+    return { status: 2 }; 
+  }
 }
 
 //update classes info
 async function updateAllClassGradesInfo() {
-    try {
-        await factsapi.getAllClassGradesInfo()
-        .then(info => {
-            if (info.status == 2) return { status: 2 };
-            database.set("allClassGradesInfo", info.result);
-        });
-        return { status: 1 } 
-    } catch (error) {
-        return { status: 2 } 
-    }
+  try {
+    const info = await factsapi.getAllClassGradesInfo();
+
+    if (info.status == 2) return { status: 2 };
+    database.set("allClassGradesInfo", info.result);
+    
+    return { status: 1 }; 
+  } catch (error) {
+    return { status: 2 }; 
+  }
 }
 
 //update classes data
 async function updateAllClassGradesData() {
-    try {
-        await factsapi.getAllClassGradesData()
-        .then(info => {
-            if (info.status == 2) return { status: 2 };
-            database.set("allClassGradesData", info.result);
-        });
-        return { status: 1 } 
-    } catch (error) {
-        return { status: 2 } 
-    }
+  try {
+    const info = await factsapi.getAllClassGradesData();
+
+    if (info.status == 2) return { status: 2 };
+    database.set("allClassGradesData", info.result);
+
+    return { status: 1 }; 
+  } catch (error) {
+    return { status: 2 }; 
+  }
 }
 
-module.exports = { sendNotif, updateAll, updateAllClassGradesInfo, updateAllClassGradesData }
+module.exports = { sendNotif, updateAll, updateAllClassGradesInfo, updateAllClassGradesData };

@@ -4,5 +4,14 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"authdb",
+			"consts",
+			"idsrv",
+			"KHTML",
+			"paren",
+			"regen"
+		]
+	}
 }
