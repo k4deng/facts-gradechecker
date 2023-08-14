@@ -152,7 +152,6 @@ async function _updatesNotifyInfo() {
     });
 
     //check for changes
-    console.log(newData);
     if (JSON.stringify(currentData) === JSON.stringify(newData)) return { status: 1, result: "No Changes" };
 
     //generate diff
