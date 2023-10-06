@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Homework</title>
+
+    <link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/dist/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+
+        .bg-light-gray {
+            background-color: #f7f7f7 !important;
+        }
+        .table-bordered thead td, .table-bordered thead th {
+            border-bottom-width: 2px;
+        }
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table-bordered td, .table-bordered th {
+            border: 1px solid #dee2e6;
+        }
+
+
+
+        .padding-15px-lr {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .padding-5px-tb {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        .margin-10px-bottom {
+            margin-bottom: 10px;
+        }
+        .border-radius-5 {
+            border-radius: 5px;
+        }
+
+        .margin-10px-top {
+            margin-top: 10px;
+        }
+        .font-size14 {
+            font-size: 14px;
+        }
+
+        .text-light-gray {
+            color: #d6d5d5;
+        }
+        .font-size13 {
+            font-size: 13px;
+        }
+
+        .table-bordered td, .table-bordered th {
+            border: 1px solid #dee2e6;
+        }
+        .table td, .table th {
+            padding: .75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .course-name {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <row>
+        <div class="col-lg-8 mx-auto pt-3 px-3 py-mt-5">
+            <header class="d-flex align-items-center pb-3 border-bottom">
+                <a href="/homework" class="d-flex align-items-center text-dark text-decoration-none">
+                    <span class="fs-4">Student Homework</span>
+                </a>
+            </header>
+        </div>
+    </row>
+    
+    <row>
+        <div class="col-lg-12 mx-auto p-3 py-md-5">
+            <main>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr class="bg-light-gray">
+                                <th class="text-uppercase">Class</th>
+                                
+                                <th class="text-uppercase">Monday</th>
+                                <th class="text-uppercase">Tuesday</th>
+                                <th class="text-uppercase">Wednesday</th>
+                                <th class="text-uppercase">Thursday</th>
+                                <th class="text-uppercase">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (const classData of Object.keys(hwData)) { %>
+
+                                <tr>
+                                    <td class="bg-light-gray align-middle text-uppercase course-name"><%= hwData[classData][0].courseTitle %></td>
+
+                                    <% let count = 5; %>
+
+                                    <% for (const dayHW of Object.keys(hwData[classData])) { %>
+
+                                        <% if (hwData[classData][dayHW]?.homeworkHTML) {%>
+                                            <td>
+                                                <%- hwData[classData][dayHW]?.homeworkHTML %>
+                                            </td>
+                                            <% count-- %>
+                                        <% } %>
+
+                                    <% } %>
+
+                                    <% for (let i = 0; i < count; i++) { %>
+                                        <td class="bg-light-gray"></td>
+                                    <% } %>
+
+                                </tr>
+
+                            <% } %>
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+        </div>
+    </row>
+
+    <row>
+        <div class="col-lg-8 mx-auto pb-3 px-3 py-mt-5">
+            <footer class="pt-5 mb-5 text-muted border-top">
+                Copyright &copy; <%= new Date().getFullYear() %> k4deng
+            </footer>
+        </div>
+    </row>
+
+    <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/dist/js/jquery-3.6.4.min.js"></script>
+    <script src="/assets/dist/js/jquery.dataTables.min.js"></script>
+    <script src="/assets/dist/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#mainTable").DataTable({
+                paging: false,
+                info: false,
+                searching: false,
+            });
+            $("#mainTable_wrapper").addClass("col-xl-8 mx-auto");
+        })
+    </script>
+
+
+</body>
+
+</html>
