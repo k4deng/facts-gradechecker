@@ -13,7 +13,8 @@ const config = {
 
   defaultTerm: 0, //set to "0" to default to the default term from the school
   
-  hiddenClasses: [ ] //array of class ids to hide from the program
+  classList: [ ], //array of class ids; affected by chosen option below (leave empty for all classes shown)
+  type: 0, //0 = whitelist, 1 = blacklist
 };
 
 module.exports = config;

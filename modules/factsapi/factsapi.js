@@ -133,11 +133,12 @@ async function getAllClassGradesInfo(term) {
     const data = await makeAuthRequest(`https://nbsmobileapi.renweb.com/api/StudentClasses/${ssInfo.defaultSchoolCode}/${ssInfo.defaultYearId}/${defaultTerm}/${ssInfo.defaultStudentId}`);
 
     //loop through classes
-    for (const classData of data) {
+    for (const classData of data) {      
 
-      //skip classes hidden or with no grades
+      //hide classes with grades disabled and check whitelist/blacklist
       if (classData.gradesDisabled == true) continue;
-      if (config.hiddenClasses.includes(classData.classId)) continue;
+      if (config.classListType == 0 && config.classList[0] && !config.classList.includes(classData.classId)) continue;
+      if (config.classListType == 1 && config.classList.includes(classData.classId)) continue;
 
       //get term grade style
       const termGradeStyle =
@@ -270,9 +271,10 @@ async function getAllClassGradesData(term) {
       //class data grades info
       const classData = await makeAuthRequest(`https://nbsmobileapi.renweb.com/api/StudentClasses/v2/${ssInfo.defaultSchoolCode}/${ssInfo.defaultYearId}/${defaultTerm}/${ssInfo.defaultStudentId}/${classInfo.classId}`);
       
-      //skip classes hidden or with no grades
+      //hide classes with grades disabled and check whitelist/blacklist
       if (classInfo.gradesDisabled == true) continue;
-      if (config.hiddenClasses.includes(classInfo.classId)) continue;
+      if (config.classListType == 0 && !config.classList.includes(classInfo.classId)) continue;
+      if (config.classListType == 1 && config.classList.includes(classInfo.classId)) continue;
 
       const data = {};
       for (const category of classData.categories) {
