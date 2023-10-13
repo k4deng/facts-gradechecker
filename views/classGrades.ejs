@@ -1,1 +1,145 @@
-<%- gradesHTML %>
+<html>
+    <head>
+        <style>
+        body {
+            font-family: "Roboto", sans-serif;
+        }
+        h3.grades_title,
+        table.grades td.grade_data_center,
+        table.grades th.grade_data_center {
+            text-align: center;
+        }
+        h3.grades_title {
+            font-size: 30px;
+        }
+        .grades_head {
+            font-weight: 700;
+            font-size: 24px;
+            border: 0 solid #000;
+            line-height: 120%;
+        }
+        .clearit {
+            clear: both;
+            width: 0;
+            height: 0;
+        }
+        .grades_head.btop {
+            border-top-width: 2px;
+        }
+        .grades_head.bbottom {
+            border-bottom-width: 2px;
+        }
+        .grades_head div {
+            margin: 1px 0;
+        }
+        .grades_head .course_title,
+        table.grades {
+            margin-bottom: 15px;
+        }
+        .grades_head .grades_left {
+            float: left;
+            width: 33%;
+        }
+        .grades_head .grades_middle {
+            float: left;
+            width: 34%;
+            text-align: center;
+        }
+        .grades_head .grades_right {
+            float: right;
+            width: 33%;
+            text-align: right;
+        }
+        table.grades {
+            clear: both;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.grades th {
+            font-size: 16.5px;
+            text-align: left;
+        }
+        table.grades td.grade_data_right,
+        table.grades th.grade_data_right {
+            text-align: right;
+        }
+        table.grades td {
+            font-size: 16.5px;
+            line-height: 100%;
+        }
+        table.grades tr.cat_avg td {
+            font-size: 21px;
+            font-weight: 700;
+            padding-top: 5px;
+        }
+        table.grades td span {
+            display: none;
+        }
+        .GBK_col1 {
+            width: 24%;
+        }
+        .GBK_col10,
+        .GBK_col2,
+        .GBK_col3,
+        .GBK_col4,
+        .GBK_col5,
+        .GBK_col6,
+        .GBK_col7,
+        .GBK_col8,
+        .GBK_col9 {
+            width: 7%;
+        }
+        .GBK_col11 {
+            width: 13%;
+        }
+        .GBK_col_note {
+            width: 20%;
+        }
+        @media only screen and (max-width: 640px) {
+            table.grades thead {
+                display: none;
+            }
+            table.grades td {
+                display: block;
+                margin-left: 15px;
+            }
+            table.grades td span {
+                display: inline-table;
+                margin-right: 3px;
+                font-style: italic;
+            }
+            table.grades td.grade_data_center,
+            table.grades td.grade_data_right {
+                text-align: left;
+            }
+            table.grades td:first-child {
+                margin: 3px 0;
+            }
+            .grades_head {
+                font-size: 19.5px;
+                line-height: 105%;
+            }
+            table.grades tr.cat_avg td {
+                font-size: 18px;
+            }
+            .GBK_col1,
+            .GBK_col10,
+            .GBK_col11,
+            .GBK_col2,
+            .GBK_col3,
+            .GBK_col4,
+            .GBK_col5,
+            .GBK_col6,
+            .GBK_col7,
+            .GBK_col8,
+            .GBK_col9,
+            .GBK_col_note {
+                width: 100%;
+            }
+        }
+        </style>
+    </head>
+    <body>
+        <%- gradesHTML %>
+    </body>
+</html>

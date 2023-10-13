@@ -6,11 +6,8 @@ const config = require("../../config.js");
 // logger
 const logger = require("../logger.js");
 
-// puppeteer (for calling api)
-const puppeteer = require("puppeteer");
-
 // auth & direct api functions
-const { puppeteerLogin, makeAuthRequest } = require("./reqhelper.js");
+const { makeAuthRequest } = require("./reqhelper.js");
 
 // get a classes grades (returns HTML)
 async function getClassGradesPage(classID, term) {
@@ -23,33 +20,21 @@ async function getClassGradesPage(classID, term) {
         ? config.defaultTerm  //use it
         : ssInfo.defaultTermId; //else grab school default term
 
-    //start browser and load page
-    let browser;
-    if (config.devMode == true) {
-      browser = await puppeteer.launch({ headless: !config.debug });
-    } else {
-      browser = await puppeteer.launch({
-        headless: !config.debug,
-        executablePath: "/usr/bin/chromium-browser",
-        args: [ "--no-sandbox", "--headless", "--disable-gpu", "--disable-dev-shm-usage" ]
-      });
-    }
-    const page = await browser.newPage();
+    //get pwcode that is used to load webpages
+    const pwcode = await makeAuthRequest("https://accounts.renweb.com/connect/userinfo").then(userinfo => userinfo.pwcode);
 
-    //login
-    await puppeteerLogin(page);
-
-    //load class grades page
-    await page.goto(`https://${config.districtCode}.client.renweb.com/pwr/student/gradebook_ajax.cfm?studentid=${ssInfo.defaultStudentId}&isAjaxRequest=gradespage&classid=${classID}&termid=${defaultTerm}`, { waitUntil: "domcontentloaded" });
-
-    //add css and grab html
-    await page.addStyleTag({
-      content: "body{font-family:\"Roboto\",sans-serif;}h3.grades_title,table.grades td.grade_data_center,table.grades th.grade_data_center{text-align:center}h3.grades_title{font-size:30px}.grades_head{font-weight:700;font-size:24px;border:0 solid #000;line-height:120%}.clearit{clear:both;width:0;height:0}.grades_head.btop{border-top-width:2px}.grades_head.bbottom{border-bottom-width:2px}.grades_head div{margin:1px 0}.grades_head .course_title,table.grades{margin-bottom:15px}.grades_head .grades_left{float:left;width:33%}.grades_head .grades_middle{float:left;width:34%;text-align:center}.grades_head .grades_right{float:right;width:33%;text-align:right}table.grades{clear:both;width:100%;border-collapse:collapse}table.grades th{font-size:16.5px;text-align:left}table.grades td.grade_data_right,table.grades th.grade_data_right{text-align:right}.grades_red{color:red}table.grades td{font-size:16.5px;line-height:100%}table.grades tr.cat_avg td{font-size:21px;font-weight:700;padding-top:5px}table.grades td span{display:none}.GCO_col1{width:55%}.GCO_col2,.GCO_col3,.GCO_col4{width:15%}.STD2_col1,.STD2_col2{width:50%}.GBK_col1{width:24%}.GBK_col10,.GBK_col2,.GBK_col3,.GBK_col4,.GBK_col5,.GBK_col6,.GBK_col7,.GBK_col8,.GBK_col9{width:7%}.GBK_col11{width:13%}.GBK_col_note{width:20%}@media only screen and (max-width:640px){table.grades thead{display:none}table.grades td{display:block;margin-left:15px}table.grades td span{display:inline-table;margin-right:3px;font-style:italic}table.grades td.grade_data_center,table.grades td.grade_data_right{text-align:left}table.grades td:first-child{margin:3px 0}.grades_head{font-size:19.5px;line-height:105%}table.grades tr.cat_avg td{font-size:18px}.GBK_col1,.GBK_col10,.GBK_col11,.GBK_col2,.GBK_col3,.GBK_col4,.GBK_col5,.GBK_col6,.GBK_col7,.GBK_col8,.GBK_col9,.GBK_col_note,.GCO_col1,.GCO_col2,.GCO_col3,.GCO_col4,.STD2_col1,.STD2_col2{width:100%}}"
-    });
-    const html = await page.$eval("html", el => el.innerHTML);
-
-    //close the browser
-    await browser.close();
+    //get class grades page
+    const html = await makeAuthRequest(
+      `https://${config.districtCode}.client.renweb.com/pwr/student/gradebook_ajax.cfm` +
+      `?code=${pwcode}` +
+      "&code_verifier=0N5uQFllFe07PUhTot4hn4oBaUNTN3nfwOUvc3Ln0X8" +
+      "&iss=https://accounts.renweb.com" +
+      `&studentid=${ssInfo.defaultStudentId}` +
+      "&isAjaxRequest=gradespage" +
+      `&classid=${classID}` +
+      `&termid=${defaultTerm}`,
+      { waitUntil: "domcontentloaded" }
+    );
 
     //send off result
     return { status: 1, result: html };

@@ -10,19 +10,6 @@ const puppeteer = require("puppeteer");
 // axios (also for calling api)
 const axios = require("axios");
 
-async function puppeteerLogin(page) {
-  //go to login page
-  await page.goto(`https://${config.districtCode}.client.renweb.com/pwr/`);
-  //type in info
-  await page.type("#username", config.username);
-  await page.type("#password", config.password);
-  await page.click("#UserType_Student");
-  //login
-  await page.click("#submit");
-  //wait for login to process
-  await page.waitForSelector("body");
-}
-
 async function regenCookie(getAuthCodeAfter) {
   //start browser and load page
   let browser;
@@ -139,4 +126,4 @@ async function makeAuthRequest(url) {
   return res.data;
 }
 
-module.exports = { puppeteerLogin, makeAuthRequest };
+module.exports = { makeAuthRequest };
