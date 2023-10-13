@@ -140,9 +140,9 @@ async function _updatesNotifyData() {
       }
 
       //send message
+      if (dataHookMessage == "") dataHookMessage = "Data Error";
       msg.setDescription(dataHookMessage);
       await dataHook.send(msg);
-
     }
 
     return { status: 1, result: "Sent Notification" };
@@ -168,7 +168,8 @@ async function _updatesNotifyInfo() {
 
     //generate diff
     //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
-    const diff = jsonDiff.diff(currentData, newData, { full: false });
+    const diff = jsonDiff.diff(currentData, newData, { full: true });
+    const onlyChangedDiff = jsonDiff.diff(currentData, newData, { full: false });
     const result = {};
 
     //init embed
@@ -197,7 +198,7 @@ async function _updatesNotifyInfo() {
     }
 
     //if everything was added/removed, don't send message
-    if (Object.entries(diff).map(item => item[0]).every(item => /(__added|__deleted)$/.test(item))) { 
+    if (Object.entries(onlyChangedDiff).map(item => item[0]).every(item => /(__added|__deleted)$/.test(item))) { 
       return { status: 1, result: "No Notification Needs To Be Sent" };
     }
 
