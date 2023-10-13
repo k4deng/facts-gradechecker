@@ -48,10 +48,22 @@ async function _updatesNotifyData() {
       const msg = new webhook.MessageBuilder()
         .setName("FACTS Grade Checker")
         .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
-        .setColor("#2b2d31")
-        .setTitle(`${info[subject].class.title} Data Change`);
+        .setColor("#2b2d31");
+      
+      //class was added/removed
+      if (subject.endsWith("__deleted")) { 
+        msg.addField(`${info[subject.replace("__deleted", "")].class.title} Removed`, "*Class removed from FACTS or bot config*");
+        await dataHook.send(msg);
+        continue;
+      } else if (subject.endsWith("__added")) {
+        const subjectInfo = await factsapi.getClassGradesInfo(subject.replace("__added", ""));
+        msg.addField(`${subjectInfo.result.class.title} Added`, "*Class added to FACTS or bot config*");
+        await dataHook.send(msg);
+        continue;
+      }
 
-      //message to be sent to embed
+      //message and title to be sent to embed
+      msg.setTitle(`${info[subject].class.title} Data Change`);
       let dataHookMessage = "";
 
       //get changes in each categories that were changed
@@ -156,26 +168,37 @@ async function _updatesNotifyInfo() {
 
     //generate diff
     //const diff = jsonDiff.diffString(currentData, newData, { full: true, color: false })
-    const diff = jsonDiff.diff(currentData, newData, { full: true });
+    const diff = jsonDiff.diff(currentData, newData, { full: false });
     const result = {};
-
-    //find changed classes
-    for (const [ subject ] of Object.entries(currentData)) {
-      if (JSON.stringify(currentData[subject].termGrade) !== JSON.stringify(newData[subject].termGrade)) {
-        result[subject] = diff[subject].termGrade;
-      }
-    }
 
     //init embed
     const msg = new webhook.MessageBuilder()
       .setName("FACTS Grade Checker")
       .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
       .setColor("#2b2d31");
-        
-    //take data and add to embed
-    for (const [ subject, data ] of Object.entries(result)) {
-      const changeMsg = `\`${data.average.__old} (${data.letter.__old ? data.letter.__old : data.letter})\` ⇒ \`${data.average.__new} (${data.letter.__old ? data.letter.__new : data.letter})\``;
-      msg.addField(`${newData[subject].class.title} Grade Change`, changeMsg);
+
+    //find changed classes
+    for (const [ subject ] of Object.entries(diff)) {
+
+      //class was added/removed (ignore as message sent in data update)
+      if (subject.endsWith("__deleted") || subject.endsWith("__added")) continue;
+
+      //term grade changed
+      if (JSON.stringify(currentData[subject].termGrade) !== JSON.stringify(newData[subject].termGrade)) {
+        result[subject] = diff[subject].termGrade;
+
+        //take data and add to embed
+        for (const [ subject2, data ] of Object.entries(result)) {
+          const changeMsg = `\`${data.average.__old} (${data.letter.__old ? data.letter.__old : data.letter})\` ⇒ \`${data.average.__new} (${data.letter.__old ? data.letter.__new : data.letter})\``;
+          msg.addField(`${newData[subject2].class.title} Grade Change`, changeMsg);
+        }
+      }
+
+    }
+
+    //if everything was added/removed, don't send message
+    if (Object.entries(diff).map(item => item[0]).every(item => /(__added|__deleted)$/.test(item))) { 
+      return { status: 1, result: "No Notification Needs To Be Sent" };
     }
 
     //send message
