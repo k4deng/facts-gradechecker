@@ -4,8 +4,9 @@ FACTS Grade Checker is a simple little program to check the grades of someone us
 The program can
 * check your grades and show them to you (`/overview`)
 * show you the full grade sheet for a class (`/class/{classID}`)
+* show a grid of your classes homework (`/homework`)
 
-And some internal functions are:
+Additionally, some internal functions are:
 * View the contents of the database (`/database`)
 * Check for changes in grades, update database and post to discord webhook (`/update`)
 
@@ -17,44 +18,21 @@ I have set up a bot to go to `/update` every few minutes so I can get a notifica
 You will first have to rename `config.example.js` to `config.js` to get started.
 
 **Step 1:**
-Open `config.js` and fill out the information in lines 2-12.
+Open `config.js` and fill out the information in lines 2-8 with the app's data you have, including webhooks and app port.
 
 **Step 2:**
-To find your `studentID` navigate to your schools portal and go to the classes page (https://*district*.client.renweb.com/pwr/school/classes.cfm).
-Click on a class and find the `studentid` query in the url and copy the value of it. It should look something like 0000000.
-Finally, paste that value into the config file.
+On lines 10-12 enter your district code, username, and password for facts-gradechecker to get your grades.
 
 **Step 3:**
-`defaultTerm` is the term (or quarter) that will be used to search for grades.
+Choose your `defaultTerm` which is the term (or quarter) that will be used to search for grades. If you leave it at `0` it will default to the current term as provided by the school.
 
 **Step 4:**
-Finally, you will need to fill out the `classes` key on line 15. Start by making a new object in the array for every class you wish to use.
-Fill out the name key (Anything you want, it is the user-friendly version of the id) and navigate to each classes page (HINT: you did this in step 2).
-Copy the value of the `classid` query from the url and paste it into the object for the appropriate class.
-Now you should have something that looks like this:
-```js
-classes: [{
-    name: "Math",
-    id: "62015"
-},{
-    name: "English",
-    id: "62067"
-},{ 
-    name: "Science",
-    id: "62092"
-},{ 
-    name: "History",
-    id: "62046"
-},{ 
-    name: "World Language",
-    id: "62021"
-},{ 
-    name: "Study Hall",
-    id: "62074"
-}]
-```
+Finally, you can fill out the `classList` array on line 16 and the type on line 17 if you want to add a class blacklist or whitelist.
 
-You are now done filling out the config!
+To find what a class' ID is, you can start the app once with no whitelist/blacklist and then navigate to `app.com/database`. There, you can find each class as an object under `data` and `allClassGradesInfo` and look in each object to find what class ID is associated with each class.
+After doing so, you will have a whitelist or blacklist to ignore "utility" classes if they are used.
+
+After that is done, you are now done filling out the config!
 
 ### How to start (docker)
 1. clone repo
