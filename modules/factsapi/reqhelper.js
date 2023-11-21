@@ -95,7 +95,7 @@ async function getAuthTokens() {
         "Accept": "*/*", 
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8", 
         "Accept-Encoding": "gzip, deflate", 
-        "User-Agent": "TMA/921905021 CFNetwork/1410.0.3 Darwin/22.6.0", 
+        "User-Agent": "CFNetwork/1485 Darwin/23.1.0", 
         "Accept-Language": "en-US,en;q=0.9"
       },
       data: `code=${code}&code_verifier=0N5uQFllFe07PUhTot4hn4oBaUNTN3nfwOUvc3Ln0X8&redirect_uri=com.renweb.accounts:/oauthredirect&client_id=aware3&grant_type=authorization_code`
@@ -119,7 +119,7 @@ async function makeAuthRequest(url) {
       "Accept": "*/*", 
       "Accept-Language": "en-US,en;q=0.9", 
       "Accept-Encoding": "gzip, deflate", 
-      "User-Agent": "TMA/921905021 CFNetwork/1410.0.3 Darwin/22.6.0", 
+      "User-Agent": "CFNetwork/1410.0.3 Darwin/22.6.0", 
     }
   });
 
