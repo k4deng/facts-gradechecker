@@ -69,7 +69,7 @@ async function _updatesNotifyData() {
       //get changes in each categories that were changed
       for (const [ cat, catData ] of Object.entries(subjectData)) {
         //category average changed
-        /*if (catData.catAvg) {
+        /*if (catData.average) {
           const title = `**\`${cat}\` Category Updated:**`;
           const message = `\`${catData.catAvg.__old}\` ⇒ \`${catData.catAvg.__new}\``;
           dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
