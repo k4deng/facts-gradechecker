@@ -49,9 +49,9 @@ async function _updatesNotifyData() {
         .setName("FACTS Grade Checker")
         .setAvatar("https://yt3.ggpht.com/ytc/AMLnZu-jAYDQk4wACUEWS9tCfut-FxP62XE3PPj5RjcO=s900-c-k-c0x00ffffff-no-rj")
         .setColor("#2b2d31");
-      
+
       //class was added/removed
-      if (subject.endsWith("__deleted")) { 
+      if (subject.endsWith("__deleted")) {
         msg.addField(`${info[subject.replace("__deleted", "")].class.title} Removed`, "*Class removed from FACTS or bot config*");
         await dataHook.send(msg);
         continue;
@@ -66,7 +66,7 @@ async function _updatesNotifyData() {
       msg.setTitle(`${info[subject].class.title} Data Change`);
       let dataHookMessage = "";
 
-      //get changes in each categories that were changed
+      //get changes in each category that were changed
       for (const [ cat, catData ] of Object.entries(subjectData)) {
         //category average changed
         /*if (catData.average) {
@@ -74,7 +74,7 @@ async function _updatesNotifyData() {
           const message = `\`${catData.catAvg.__old}\` ⇒ \`${catData.catAvg.__new}\``;
           dataHookMessage = dataHookMessage + "\n" + title + "\n" + message;
         }*/
-                
+
         //some assignment was changed
         if (catData.assignments) {
           for (const [ assignment, assignmentData ] of Object.entries(catData.assignments)) {
@@ -198,7 +198,7 @@ async function _updatesNotifyInfo() {
     }
 
     //if everything was added/removed, don't send message
-    if (Object.entries(onlyChangedDiff).map(item => item[0]).every(item => /(__added|__deleted)$/.test(item))) { 
+    if (Object.entries(onlyChangedDiff).map(item => item[0]).every(item => /(__added|__deleted)$/.test(item))) {
       return { status: 1, result: "No Notification Needs To Be Sent" };
     }
 
@@ -215,9 +215,9 @@ async function _updatesNotifyInfo() {
 async function sendNotif() {
   try {
     await _updatesNotifyInfo();
-    return { status: 1 }; 
+    return { status: 1 };
   } catch (error) {
-    return { status: 2 }; 
+    return { status: 2 };
   }
 }
 
@@ -230,9 +230,9 @@ async function updateAll() {
     await updateAllClassGradesData();
     if (notifyResInfo.result == "No Changes" ) return { status: 1 };
     await updateAllClassGradesInfo();
-    return { status: 1 }; 
+    return { status: 1 };
   } catch (error) {
-    return { status: 2 }; 
+    return { status: 2 };
   }
 }
 
@@ -243,10 +243,10 @@ async function updateAllClassGradesInfo() {
 
     if (info.status == 2) return { status: 2 };
     database.set("allClassGradesInfo", info.result);
-    
-    return { status: 1 }; 
+
+    return { status: 1 };
   } catch (error) {
-    return { status: 2 }; 
+    return { status: 2 };
   }
 }
 
@@ -258,9 +258,9 @@ async function updateAllClassGradesData() {
     if (info.status == 2) return { status: 2 };
     database.set("allClassGradesData", info.result);
 
-    return { status: 1 }; 
+    return { status: 1 };
   } catch (error) {
-    return { status: 2 }; 
+    return { status: 2 };
   }
 }
 

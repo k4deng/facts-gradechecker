@@ -216,7 +216,7 @@ async function getClassGradesData(classID, term) {
         title: category.title,
         description: category.description,
         weight: category.weight,
-        //average: category.average, //commented out because it will trigger notifications for catavg changes which i dont want
+        //average: category.average, //commented out because it will trigger notifications for catavg changes which i don't want
         assignments: {}
       };
 
@@ -285,7 +285,7 @@ async function getAllClassGradesData(term) {
           title: category.title,
           description: category.description,
           weight: category.weight,
-          //average: category.average, //commented out because it will trigger notifications for catavg changes which i dont want
+          //average: category.average, //commented out because it will trigger notifications for catavg changes which i don't want
           assignments: {}
         };
 

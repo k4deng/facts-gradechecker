@@ -1,5 +1,5 @@
 # About
-FACTS Grade Checker is a simple little program to check the grades of someone using FACTS (RenWeb) at their school and update them of changes. All of the functions and routes are labeled at `site.com/` and have links to those pages.
+FACTS Grade Checker is a simple little program to check the grades of someone using FACTS (RenWeb) at their school and update them of changes. All the functions and routes are labeled at `site.com/` and have links to those pages.
 
 The program can
 * check your grades and show them to you (`/overview`)
