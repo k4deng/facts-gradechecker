@@ -127,3 +127,6 @@ config.js
 
 # test file
 test.js
+
+# intellij files
+.idea/
