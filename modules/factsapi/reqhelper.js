@@ -109,8 +109,7 @@ async function getAuthTokens() {
 }
 
 async function makeAuthRequest(url) {
-  const tokens = await getAuthTokens();
-  const access_token = tokens.access_token;
+  const { access_token } = await getAuthTokens();
 
   const res = await axios.get(url, {
     headers: {

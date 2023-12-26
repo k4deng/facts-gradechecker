@@ -15,13 +15,13 @@ const chalk = require("chalk");
 const morgan = require("morgan");
 morgan.token("statusColor", (req, res) => {
   // get the status code if response written
-  var status = (typeof res.headersSent !== "boolean"
+  const status = (typeof res.headersSent !== "boolean"
     ? Boolean(res.header)
     : res.headersSent)
     ? res.statusCode
     : undefined;
   // get status color
-  var color =
+  const color =
     status >= 500
       ? 31 // red
       : status >= 400

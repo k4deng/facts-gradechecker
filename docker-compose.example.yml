@@ -5,7 +5,7 @@ services:
     image: k4deng/facts-gradechecker
     restart: unless-stopped
     ports:
-      - 8080:8080
+      - "8080:8080"
     volumes:
       - /var/home/facts-gradechecker/data:/app/data
       - /var/home/facts-gradechecker/config.js:/app/config.js
