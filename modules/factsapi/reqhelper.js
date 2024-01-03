@@ -78,7 +78,7 @@ async function getAuthCode() {
 async function getAuthTokens() {
 
   //consts for checking for expired tokens
-  const genDate = await authdb.get("tokens", "generated");
+  const genDate = await authdb.get("tokens")?.generated ?? 0;
   const HOUR = 1000 * 60 * 60;
   const anHourAgo = Date.now() - HOUR;
 
