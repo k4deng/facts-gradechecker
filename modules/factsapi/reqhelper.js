@@ -65,7 +65,7 @@ async function getAuthCode() {
     });
 
     //get cookie
-    const cookie = res2.headers.raw()["set-cookie"][1].match(/idsrv=([^;]*)/)?.[1];
+    const cookie = res2.headers.raw()["set-cookie"][1].match(/Passport.Auth=([^;]*)/)?.[1];
     
     //call callback url with cookie to get final code
     await axios({
@@ -76,7 +76,7 @@ async function getAuthCode() {
         "Accept-Encoding": "gzip, deflate",
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1", 
         "Accept-Language": "en-US,en;q=0.9",
-        "Cookie": `idsrv=${cookie}`
+        "Cookie": `Passport.Auth=${cookie}`
       },
       maxRedirects: 1, //callback redirects to local page, we just get the code straight from the redirected url without actually going there
       // note: the way i do this returns an error even if it works so we have to get the actual code in the catch block
